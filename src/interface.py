@@ -39,49 +39,8 @@ def _map_clusterid5_to_clusterid_level(df: pd.DataFrame, cluster_level: enums.Pl
     return df
 
 
-
 def get_city_population(census_year: enums.CensusYear) -> pd.DataFrame:
     geo_df = data.geo_data(census_year=census_year)
     geo_df['count'] = 1
     city_population = geo_df.groupby(by=['clusterid_k5']).agg({'count': 'sum'})
     return city_population
-
-## OLD CODE BELOW
-
-def _get_census_individuals_within_industry(industry: enums.Industry) -> pd.DataFrame:
-    codes = enums.Industry.get_codes(industry=industry)
-    filtered_data = data.data.loc[data.data['IND1950'].isin(codes)].copy()
-    return filtered_data
-
-
-def get_share_of_agricultural_workers_by_city(year: Union[int, List[int]] = None) -> pd.DataFrame:
-    assert data.data is not None, 'Data has not been loaded'
-    year_ = year if year is not None else list(data.data['YEAR'].unique())
-
-    if isinstance(year_, int):
-        year_ = [year]
-    else:
-        year_ = year
-
-    census_agriculture = _get_census_individuals_within_industry(industry=enums.Industry.AGRICULTURE)
-    agriculture_workers_by_city = census_agriculture.groupby(by=['YEAR', 'CITY']).agg({'HIK': 'count'}).rename(columns={'HIK': 'AGR'})
-
-    census_non_agriculture = _get_census_individuals_within_industry(industry=enums.Industry.NON_AGRICULTURE)
-    non_agriculture_workers_by_city = census_non_agriculture.groupby(by=['YEAR', 'CITY']).agg({'HIK': 'count'}).rename(columns={'HIK': 'NON_AGR'})
-
-    number_of_agr_and_non_agr_workers_by_city = pd.merge(agriculture_workers_by_city, non_agriculture_workers_by_city, left_index=True, right_index=True, how='outer')
-    number_of_agr_and_non_agr_workers_by_city.fillna(value=0, inplace=True)
-    number_of_agr_and_non_agr_workers_by_city['AGR_SHARE'] = number_of_agr_and_non_agr_workers_by_city['AGR'] / (number_of_agr_and_non_agr_workers_by_city['AGR'] + number_of_agr_and_non_agr_workers_by_city['NON_AGR'])
-    number_of_agr_and_non_agr_workers_by_city_selected_year = number_of_agr_and_non_agr_workers_by_city.loc[(year_, slice(None))]
-    return number_of_agr_and_non_agr_workers_by_city_selected_year
-
-
-def get_city_name(city_code: Union[str, List[str]]) -> pd.DataFrame:
-    if isinstance(city_code, str):
-        city_code_ = [city_code]
-    else:
-        city_code_ = city_code
-    return data.city_codes_and_names.set_index('CITY').loc[city_code_]
-
-
-
