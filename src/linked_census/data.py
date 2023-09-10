@@ -1,7 +1,6 @@
 import pandas as pd
 
-from . import preprocessing
-from . import config
+from . import config, preprocessing
 
 
 class Data:

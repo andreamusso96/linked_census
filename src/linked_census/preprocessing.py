@@ -1,10 +1,6 @@
-from typing import List
-
 import pandas as pd
 
-from . import config
-from . import enums
-from . import utils
+from . import config, enums, utils
 
 
 def load(census_year: enums.CensusYear) -> pd.DataFrame:

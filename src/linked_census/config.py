@@ -1,7 +1,7 @@
 import os
 from . import enums
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 data_dir = f'{base_dir}/data'
 
 

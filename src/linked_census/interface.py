@@ -1,5 +1,3 @@
-from typing import Union, List
-
 import pandas as pd
 
 from .data import data
