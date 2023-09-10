@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkedcensus"
+description = "titanic_ml example package"
+version = "0.1.0"
+authors = [{name = "Andrea Musso"}]
+requires-python = ">=3.7"
+dependencies = ["pandas >= 2.0.0"]

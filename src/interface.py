@@ -14,9 +14,9 @@ def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Indu
     individual_ids = _get_ids_of_individuals_within_industry_in_year(df=df, industry=industry, year=from_year)
     census_individuals_within_industry_in_initial_year = df.loc[df['HIK'].isin(individual_ids)].copy()
     city__person_by_year = census_individuals_within_industry_in_initial_year.pivot(index='HIK', columns='YEAR', values='clusterid_k5')
-    city__person_by_year = _map_clusterid5_to_clusterid_level(df=city__person_by_year, cluster_level=cluster_level)
     city__person_by_year = city__person_by_year[[from_year, to_year]]
     city__person_by_year.dropna(inplace=True)
+    city__person_by_year = _map_clusterid5_to_clusterid_level(df=city__person_by_year, cluster_level=cluster_level)
     city__person_by_year['count'] = 1
 
     migrations_from_city_to_city_across_years = city__person_by_year.groupby(by=[from_year, to_year]).agg({'count': 'sum'})
@@ -35,7 +35,7 @@ def _get_ids_of_individuals_within_industry_in_year(df: pd.DataFrame, industry: 
 
 def _map_clusterid5_to_clusterid_level(df: pd.DataFrame, cluster_level: enums.PlaceClusterLevel) -> pd.DataFrame:
     cluster5_to_cluster_map = data.place_data[['consistent_place_5', f'consistent_place_{cluster_level.value}']].drop_duplicates().set_index('consistent_place_5')[f'consistent_place_{cluster_level.value}'].to_dict()
-    df = df.applymap(lambda x: cluster5_to_cluster_map[x])
+    df = df.map(lambda x: cluster5_to_cluster_map[int(x)])
     return df
 
 
