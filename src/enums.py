@@ -35,7 +35,7 @@ class Industry(Enum):
     def get_codes(industry: 'Industry') -> Set[int]:
         assert data.data is not None, 'Data has not been loaded'
         if industry == industry.ALL:
-            return set(data.data['IND1950'].unique())
+            return set(data.data.industry_codes['industry1950_code'].values)
         elif industry == industry.AGRICULTURE:
             return {105, 116, 126, 306, 409, 619}.union({0, 979, 995, 997, 998, 999})
         elif industry == industry.NON_AGRICULTURE:
@@ -53,6 +53,19 @@ class Industry(Enum):
             return Industry.NON_AGRICULTURE
         else:
             raise NotImplementedError(f'Industry is not implemented: {industry}')
+
+
+class PlaceClusterLevel(Enum):
+    l5 = 5
+    l10 = 10
+    l50 = 50
+    l100 = 100
+    l200 = 200
+    l300 = 300
+    l500 = 500
+
+
+
 
 
 

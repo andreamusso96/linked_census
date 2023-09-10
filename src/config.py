@@ -11,7 +11,15 @@ def census_data_file(census_year: enums.CensusYear) -> str:
 
 
 def geo_data_file(census_year: enums.CensusYear) -> str:
-    return f'{data_dir}/Geo/{census_year.value}_csv.zip'
+    return f'{data_dir}/geo/histid_place_crosswalk_{census_year.value}.csv.gz'
+
+
+def industry_codes_file() -> str:
+    return f'{data_dir}/industry_base1950_codes.csv'
+
+
+def place_data_file() -> str:
+    return f'{data_dir}/geo/place_component_crosswalk.csv'
 
 
 
