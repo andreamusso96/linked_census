@@ -5,12 +5,16 @@ from . import enums
 from . import utils
 
 
-def get_intercity_migrations(census_year: enums.CensusYear, cluster_level: enums.PlaceClusterLevel = enums.PlaceClusterLevel.l5) -> pd.DataFrame:
+def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Industry = enums.Industry.ALL, cluster_level: enums.PlaceClusterLevel = enums.PlaceClusterLevel.l5) -> pd.DataFrame:
     utils.logger.debug(f'get_intercity_migrations: called with census_year={census_year.value}, cluster_level={cluster_level.value}')
     next_census_year = enums.CensusYear.get_next_census_year(census_year=census_year)
 
     utils.logger.debug(f'get_intercity_migrations: loading data')
     df = _load_and_match_census_data_consecutive_years(census_year=census_year)
+
+    utils.logger.debug(f'get_intercity_migrations: filtering by industry')
+    hik_in_industry = df['IND1950_1'].isin(enums.Industry.get_codes(industry=industry))
+    df = df[hik_in_industry].copy()
 
     utils.logger.debug(f'get_intercity_migrations: selecting census place clusters at level {cluster_level.value}')
     df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
