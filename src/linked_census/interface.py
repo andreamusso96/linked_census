@@ -13,7 +13,7 @@ def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Indu
     data_year_1 = data.data(census_year=census_year)
     data_year_2 = data.data(census_year=next_census_year)
 
-    utils.logger.debug(f'get_intercity_migrations: merging data from year {census_year.value} with data from year {next_census_year.value}}')
+    utils.logger.debug(f'get_intercity_migrations: merging data from year {census_year.value} with data from year {next_census_year.value}')
     df = data_year_1.merge(data_year_2, how='left', left_on='HIK', right_on='HIK', suffixes=('_1', '_2'))[['HIK', 'clusterid_k5_1', 'clusterid_k5_2', 'IND1950_1']]
     df.set_index('HIK', inplace=True)
     df.rename(columns={'clusterid_k5_1': census_year.value, 'clusterid_k5_2': next_census_year.value}, inplace=True)
