@@ -9,18 +9,8 @@ def get_intercity_migrations(census_year: enums.CensusYear, cluster_level: enums
     utils.logger.debug(f'get_intercity_migrations: called with census_year={census_year.value}, cluster_level={cluster_level.value}')
     next_census_year = enums.CensusYear.get_next_census_year(census_year=census_year)
 
-    utils.logger.debug(f'get_intercity_migrations: loading data from year {census_year.value} and year {next_census_year.value}')
-    data_year_1 = data.data(census_year=census_year)
-    utils.logger.debug(f'get_intercity_migrations: loaded data with columns {data_year_1.columns} and nrows {data_year_1.shape[0]}')
-    data_year_2 = data.data(census_year=next_census_year)
-    utils.logger.debug(f'get_intercity_migrations: loaded data with columns {data_year_2.columns} and nrows {data_year_2.shape[0]}')
-
-    utils.logger.debug(f'get_intercity_migrations: merging data from year {census_year.value} with data from year {next_census_year.value}')
-    df = data_year_1.merge(data_year_2, how='left', left_on='HIK', right_on='HIK', suffixes=('_1', '_2'))[['HIK', 'clusterid_k5_1', 'clusterid_k5_2', 'IND1950_1']]
-    utils.logger.debug(f'get_intercity_migrations: merged data has columns {df.columns} and nrows {df.shape[0]}')
-    df.set_index('HIK', inplace=True)
-    df.rename(columns={'clusterid_k5_1': census_year.value, 'clusterid_k5_2': next_census_year.value}, inplace=True)
-    df.dropna(inplace=True)
+    utils.logger.debug(f'get_intercity_migrations: loading data')
+    df = _load_and_match_census_data_consecutive_years(census_year=census_year)
 
     utils.logger.debug(f'get_intercity_migrations: selecting census place clusters at level {cluster_level.value}')
     df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
@@ -34,6 +24,23 @@ def get_intercity_migrations(census_year: enums.CensusYear, cluster_level: enums
 
     utils.logger.debug(f'get_intercity_migrations: done')
     return migration_matrix__city_by_city
+
+
+def _load_and_match_census_data_consecutive_years(census_year: enums.CensusYear) -> pd.DataFrame:
+    next_census_year = enums.CensusYear.get_next_census_year(census_year=census_year)
+    utils.logger.debug(f'_load_and_match_census_data_consecutive_years: loading data from year {census_year.value} and year {next_census_year.value}')
+    data_year_1 = data.data(census_year=census_year)
+    data_year_1.dropna(subset=['HIK'], inplace=True)
+    data_year_1.set_index('HIK', inplace=True)
+    data_year_2 = data.data(census_year=next_census_year)
+    data_year_2.dropna(subset=['HIK'], inplace=True)
+    data_year_2.set_index('HIK', inplace=True)
+
+    utils.logger.debug(f'get_intercity_migrations: merging data from year {census_year.value} with data from year {next_census_year.value}')
+    df = data_year_1.merge(data_year_2, how='left', left_index=True, right_index=True, suffixes=('_1', '_2'))[['clusterid_k5_1', 'clusterid_k5_2', 'IND1950_1']]
+    df.rename(columns={'clusterid_k5_1': census_year.value, 'clusterid_k5_2': next_census_year.value}, inplace=True)
+    df.dropna(inplace=True)
+    return df
 
 
 def _map_clusterid5_to_clusterid_level(df: pd.DataFrame, cluster_level: enums.PlaceClusterLevel) -> pd.DataFrame:
