@@ -14,19 +14,19 @@ class Data:
         if self._data is None or census_year != self._census_year:
             self._data = preprocessing.load_data(census_year=census_year)
             self._census_year = census_year
-        return self._data
+        return self._data.copy()
 
     @property
     def place_data(self):
         if self._place_data is None:
             self._place_data = pd.read_csv(config.place_data_file())
-        return self._place_data
+        return self._place_data.copy()
 
     @property
     def industry_codes(self) -> pd.DataFrame:
         if self._industry_codes is None:
             self._industry_codes = pd.read_csv(config.industry_codes_file(), dtype={'industry1950_code': int, 'label': str})
-        return self._industry_codes
+        return self._industry_codes.copy()
 
 
 data = Data()
