@@ -5,8 +5,8 @@ from . import enums
 from . import utils
 
 
-def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Industry = enums.Industry.ALL, cluster_level: enums.PlaceClusterLevel = enums.PlaceClusterLevel.l5) -> pd.DataFrame:
-    utils.logger.debug(f'get_intercity_migrations: called with census_year={census_year.value}, industry={industry.value}, cluster_level={cluster_level.value}')
+def get_intercity_migrations(census_year: enums.CensusYear, cluster_level: enums.PlaceClusterLevel = enums.PlaceClusterLevel.l5) -> pd.DataFrame:
+    utils.logger.debug(f'get_intercity_migrations: called with census_year={census_year.value}, cluster_level={cluster_level.value}')
     next_census_year = enums.CensusYear.get_next_census_year(census_year=census_year)
 
     utils.logger.debug(f'get_intercity_migrations: loading data from year {census_year.value} and year {next_census_year.value}')
@@ -18,10 +18,6 @@ def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Indu
     df.set_index('HIK', inplace=True)
     df.rename(columns={'clusterid_k5_1': census_year.value, 'clusterid_k5_2': next_census_year.value}, inplace=True)
     df.dropna(inplace=True)
-
-    utils.logger.debug(f'get_intercity_migrations: selecting individuals in industry {industry.value}')
-    hik_industry = df['IND1950_1'].isin(enums.Industry.get_codes(industry=industry)).index
-    df = df.loc[hik_industry].copy()
 
     utils.logger.debug(f'get_intercity_migrations: selecting census place clusters at level {cluster_level.value}')
     df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
