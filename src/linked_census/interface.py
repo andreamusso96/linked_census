@@ -32,14 +32,19 @@ def _get_hik_of_individuals_in_industry(df: pd.DataFrame, industry: enums.Indust
 
 
 def _map_clusterid5_to_clusterid_level(df: pd.DataFrame, cluster_level: enums.PlaceClusterLevel) -> pd.DataFrame:
-    cluster5_to_cluster_map = data.place_data[['consistent_place_5', f'consistent_place_{cluster_level.value}']].drop_duplicates().set_index('consistent_place_5')[f'consistent_place_{cluster_level.value}'].to_dict()
-    df = df.applymap(lambda x: cluster5_to_cluster_map[int(x)])
-    return df
+    if cluster_level == enums.PlaceClusterLevel.l5:
+        return df
+    else:
+        cluster5_to_cluster_map = data.place_data[['consistent_place_5', f'consistent_place_{cluster_level.value}']].drop_duplicates().set_index('consistent_place_5')[f'consistent_place_{cluster_level.value}'].to_dict()
+        df = df.applymap(lambda x: cluster5_to_cluster_map[int(x)])
+        return df
 
 
-def get_city_population(census_year: enums.CensusYear) -> pd.DataFrame:
-    df = data.data(census_year=census_year)
+def get_city_population(census_year: enums.CensusYear, cluster_level: enums.PlaceClusterLevel) -> pd.DataFrame:
+    df = data.data(census_year=census_year)[['clusterid_k5']].copy()
+    df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
+    df.rename(columns={'clusterid_k5': f'clusterid_k{cluster_level.value}'}, inplace=True)
     df['count'] = 1
-    city_population = df.groupby(by=['clusterid_k5']).agg({'count': 'sum'})
+    city_population = df.groupby(by=[f'clusterid_k{cluster_level.value}']).agg({'count': 'sum'})
     city_population.rename(columns={'count': 'population'}, inplace=True)
     return city_population
