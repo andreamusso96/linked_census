@@ -41,7 +41,7 @@ def _load_and_match_census_data_consecutive_years(census_year: enums.CensusYear)
     data_year_2.set_index('HIK', inplace=True)
 
     utils.logger.debug(f'get_intercity_migrations: merging data from year {census_year.value} with data from year {next_census_year.value}')
-    df = data_year_1.merge(data_year_2, how='left', left_index=True, right_index=True, suffixes=('_1', '_2'))[['clusterid_k5_1', 'clusterid_k5_2', 'IND1950_1']]
+    df = data_year_1.merge(data_year_2, how='inner', left_index=True, right_index=True, suffixes=('_1', '_2'))[['clusterid_k5_1', 'clusterid_k5_2', 'IND1950_1']]
     df.rename(columns={'clusterid_k5_1': census_year.value, 'clusterid_k5_2': next_census_year.value}, inplace=True)
     df.dropna(inplace=True)
     return df
