@@ -18,7 +18,7 @@ def load_data(census_year: enums.CensusYear) -> pd.DataFrame:
 
 
 def load_census_data(census_year: enums.CensusYear) -> pd.DataFrame:
-    data = pd.read_csv(config.census_data_file(census_year=census_year), compression='gzip', dtype={'YEAR': int, 'HISTID': str}, usecols=['YEAR', 'HISTID', 'HIK', 'IND1950', 'OCC1950'])
+    data = pd.read_csv(config.census_data_file(census_year=census_year), compression='gzip', dtype={'YEAR': int, 'HISTID': str, 'HIK': str}, usecols=['YEAR', 'HISTID', 'HIK', 'IND1950', 'OCC1950'])
     data.drop_duplicates(subset=['HISTID'], inplace=True)
     return data
 
