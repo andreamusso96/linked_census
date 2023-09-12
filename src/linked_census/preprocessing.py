@@ -29,5 +29,6 @@ def load_geo_data(year: enums.CensusYear) -> pd.DataFrame:
     geo_data = pd.read_csv(config.geo_data_file(census_year=year), compression='gzip', dtype={'histid': str}, low_memory=False, usecols=['clusterid_k5', 'histid'])
     geo_data.rename(columns={'histid': 'HISTID'}, inplace=True)
     geo_data.drop_duplicates(subset=['HISTID'], inplace=True)
+    geo_data.dropna(subset=['HISTID'], inplace=True)
     geo_data['HISTID'] = geo_data['HISTID'].apply(lambda x: x.upper())
     return geo_data

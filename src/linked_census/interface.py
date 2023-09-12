@@ -23,11 +23,8 @@ def get_intercity_migrations(census_year: enums.CensusYear, industry: enums.Indu
     df['count'] = 1
     migrations_from_city_to_city_across_years = df.groupby(by=[census_year.value, next_census_year.value]).agg({'count': 'sum'})
     migrations_from_city_to_city_across_years.reset_index(inplace=True)
-    migration_matrix__city_by_city = migrations_from_city_to_city_across_years.pivot(index=census_year.value, columns=next_census_year.value, values='count')
-    migration_matrix__city_by_city.fillna(value=0, inplace=True)
-
     utils.logger.debug(f'get_intercity_migrations: done')
-    return migration_matrix__city_by_city
+    return migrations_from_city_to_city_across_years
 
 
 def _load_and_match_census_data_consecutive_years(census_year: enums.CensusYear) -> pd.DataFrame:
