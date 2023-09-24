@@ -50,6 +50,7 @@ def _map_clusterid5_to_clusterid_level(df: pd.DataFrame, cluster_level: enums.Pl
     else:
         cluster5_to_cluster_map = data.place_data[['consistent_place_5', f'consistent_place_{cluster_level.value}']].drop_duplicates().set_index('consistent_place_5')[f'consistent_place_{cluster_level.value}'].to_dict()
         df = df.applymap(lambda x: cluster5_to_cluster_map[int(x)])
+        df.rename(columns={'clusterid_k5': f'clusterid_k{cluster_level.value}'}, inplace=True)
         return df
 
 
@@ -61,7 +62,6 @@ def get_city_population(census_year: enums.CensusYear, cluster_level: enums.Plac
 
     utils.logger.debug(f'get_city_population: selecting census place clusters at level {cluster_level.value}')
     df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
-    df.rename(columns={'clusterid_k5': f'clusterid_k{cluster_level.value}'}, inplace=True)
 
     utils.logger.debug(f'get_city_population: aggregating population across cities')
     df['count'] = 1
@@ -70,3 +70,21 @@ def get_city_population(census_year: enums.CensusYear, cluster_level: enums.Plac
 
     utils.logger.debug(f'get_city_population: done')
     return city_population
+
+
+def get_city_industrial_composition(census_year: enums.CensusYear, cluster_level: enums.PlaceClusterLevel) -> pd.DataFrame:
+    utils.logger.debug(f'get_city_industrial_composition: called with census_year={census_year.value}, cluster_level={cluster_level.value}')
+
+    utils.logger.debug(f'get_city_industrial_composition: loading data from year {census_year.value}')
+    df = data.data(census_year=census_year)[['clusterid_k5', 'IND1950']].copy()
+
+    utils.logger.debug(f'get_city_industrial_composition: selecting census place clusters at level {cluster_level.value}')
+    df = _map_clusterid5_to_clusterid_level(df=df, cluster_level=cluster_level)
+
+    utils.logger.debug(f'get_city_industrial_composition: aggregating population across cities')
+    df['count'] = 1
+    city_industrial_composition = df.groupby(by=[f'clusterid_k{cluster_level.value}', 'IND1950']).agg({'count': 'sum'})
+    city_industrial_composition.rename(columns={'count': 'workers'}, inplace=True)
+
+    utils.logger.debug(f'get_city_industrial_composition: done')
+    return city_industrial_composition
