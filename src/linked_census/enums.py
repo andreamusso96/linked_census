@@ -17,7 +17,7 @@ class CensusYear(Enum):
     y1940 = 1940
 
     @staticmethod
-    def get_next_census_year(census_year: 'CensusYear'):
+    def get_next_census_year(census_year: 'CensusYear') -> 'CensusYear':
         if census_year != CensusYear.y1940 and census_year != CensusYear.y1880:
             return CensusYear(census_year.value + 10)
         elif census_year == CensusYear.y1880:
@@ -25,34 +25,19 @@ class CensusYear(Enum):
         else:
             raise ValueError(f'The census year {census_year.value} has no next census year')
 
+    @staticmethod
+    def from_int(census_year: int) -> 'CensusYear':
+        census_year_enum = [census_year_enum for census_year_enum in CensusYear if census_year_enum.value == census_year][0]
+        return census_year_enum
+
 
 class Industry(Enum):
-    ALL = 'ALL'
-    AGRICULTURE = 'AGR'
-    NON_AGRICULTURE = 'NON_AGR'
-
     @staticmethod
-    def get_codes(industry: 'Industry') -> Set[int]:
-        assert data.data is not None, 'Data has not been loaded'
-        if industry == industry.ALL:
-            return set(data.data.industry_codes['industry1950_code'].values)
-        elif industry == industry.AGRICULTURE:
-            return {105, 116, 126, 306, 409, 619}.union({0, 979, 995, 997, 998, 999})
-        elif industry == industry.NON_AGRICULTURE:
-            return Industry.get_codes(industry=Industry.ALL) - Industry.get_codes(industry=Industry.AGRICULTURE)
-        else:
-            raise NotImplementedError(f'Industry is not implemented: {industry}')
-
-    @staticmethod
-    def from_string(industry: str):
-        if industry == Industry.ALL.value:
-            return Industry.ALL
-        elif industry == Industry.AGRICULTURE.value:
-            return Industry.AGRICULTURE
-        elif industry == Industry.NON_AGRICULTURE.value:
-            return Industry.NON_AGRICULTURE
-        else:
-            raise NotImplementedError(f'Industry is not implemented: {industry}')
+    def get_map_industry_code_to_aggregation_level(aggregation_level: int) -> dict:
+        assert 0 <= aggregation_level <= 3, 'Aggregation level must be between 0 and 3'
+        industry_codes_with_aggregation = data.data.industry_codes[['IND1950_CODE', f'IND1950_DESC_AGG{aggregation_level}']]
+        map_industry_codes_to_aggregation = industry_codes_with_aggregation.set_index('IND1950_CODE')[f'IND1950_DESC_AGG{aggregation_level}'].to_dict()
+        return map_industry_codes_to_aggregation
 
 
 class PlaceClusterLevel(Enum):

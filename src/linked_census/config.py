@@ -14,7 +14,7 @@ def geo_data_file(census_year: enums.CensusYear) -> str:
 
 
 def industry_codes_file() -> str:
-    return f'{data_dir}/census/industry_base1950_codes.csv'
+    return f'{data_dir}/census/industry1950_codes_and_desc.csv'
 
 
 def place_data_file() -> str:

@@ -25,7 +25,7 @@ class Data:
     @property
     def industry_codes(self) -> pd.DataFrame:
         if self._industry_codes is None:
-            self._industry_codes = pd.read_csv(config.industry_codes_file(), dtype={'industry1950_code': int, 'label': str})
+            self._industry_codes = pd.read_csv(config.industry_codes_file(), dtype={'IND1950_CODE': int})
         return self._industry_codes.copy()
 
 
